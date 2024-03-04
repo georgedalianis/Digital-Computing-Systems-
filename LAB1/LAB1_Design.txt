@@ -1,0 +1,136 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.numeric_std.all;
+use ieee.std_logic_UNSIGNED.all;
+use ieee.std_logic_ARITH.all;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity Wcounter is
+  Port (
+    Rst, Clock: in STD_LOGIC; -- inputs  
+    Control: in STD_LOGIC_VECTOR(2 DOWNTO 0); -- exit control 
+    Count: out STD_LOGIC_VECTOR(7 DOWNTO 0); -- exit counter
+    Overflow, Underflow, Valid: out STD_LOGIC -- exits  Overflow, Underflow, Valid
+  );
+end Wcounter;
+
+
+
+architecture Behavior of Wcounter is
+  signal Qtemp: STD_LOGIC_VECTOR(7 DOWNTO 0); -- eswteriko sima gia tin katastasi tou metriti
+  signal ValidSignal: STD_LOGIC;
+  signal OverflowSignal, UnderflowSignal: STD_LOGIC;
+  
+
+
+  begin
+  process (Clock, Rst)
+  begin
+    if Rst = '1' then -- an sima 1
+      Qtemp <= "00000000"; -- epanaferw ton metriti sto 0 
+      ValidSignal <= '1'; --
+      OverflowSignal <= '0';
+      UnderflowSignal <= '0';
+
+ elsif rising_edge(Clock) then
+      if ValidSignal = '1' then
+        if Control = "000" then
+          -- 3ekinaw me timi 0 sto control 
+          if Qtemp < "00000101" then
+            -- elegxos an einai mikrotero tou 5, dioti h epomeni e3odos tha einai -5, ara underflow
+            UnderflowSignal <= '1';
+            ValidSignal <= '0';
+         else
+            ValidSignal <= '1';
+            Qtemp <= Qtemp - "00000101"; -- meiwnw ton metriti kata 5
+          end if;
+			 
+			 
+        elsif Control = "001" then
+          -- timi 1 sto control
+          if Qtemp < "00000010" then
+            -- elegxw an einai mikrotero tou 2, dioti i epomeni e3odos 8a einai -2, ara underflow
+            UnderflowSignal <= '1';
+            ValidSignal <= '0';
+else
+            ValidSignal <= '1';
+            Qtemp <= Qtemp - "00000010"; -- meiwnw ton metriti kata 2
+          end if;
+			 
+			 
+			 elsif Control = "010" then
+          -- timi 2 sto control
+          ValidSignal <= '1';
+			 
+			 
+			    elsif Control = "011" then --3
+          if Qtemp >= "11111111" then
+            --  an einai megalutero apo 255, tote i epomeni e3odos 8a au3ei8ei kata 1, overflow
+            OverflowSignal <= '1';
+            ValidSignal <= '0';
+          else
+			 ValidSignal <= '1';
+            Qtemp <= Qtemp + "00000001";
+          end if;
+			 
+			 
+       elsif Control = "100" then --4
+          if Qtemp >= "11111110" then
+            --  an einai megalutero apo 254 overflow,an oxi  tote i epomeni e3odos 8a au3ei8ei kata 2
+            OverflowSignal <= '1';
+            ValidSignal <= '0';
+          else
+            ValidSignal <= '1';
+            Qtemp <= Qtemp + "00000010";
+          end if;
+			 
+ elsif Control = "101" then
+          if Qtemp >= "11111011" then
+            -- an einai megalutero apo 251, tote i epomeni e3odos 8a au3ei8ei kata 5, overflow
+            OverflowSignal <= '1';
+            ValidSignal <= '0';
+          else
+            ValidSignal <= '1';
+            Qtemp <= Qtemp + "00000101";
+          end if;
+			 
+			 
+  elsif Control = "110" then
+          if Qtemp >= "11111010" then
+            -- an einai megalutero apo 250, tote i epomeni e3odos 8a au3ei8ei kata 6, overflow
+            OverflowSignal <= '1';
+            ValidSignal <= '0';
+          else
+            ValidSignal <= '1';
+            Qtemp <= Qtemp + "00000110";
+          end if;
+			 
+			 
+		     else
+		  if Qtemp >= "11110011" then
+            -- an einai megalutero apo 243, tote i epomeni e3odos 8a au3ei8ei kata 12, overflow
+            OverflowSignal <= '1';
+            ValidSignal <= '0';
+          else
+			  ValidSignal <= '1';
+            Qtemp <= Qtemp + "00001100";
+          end if;
+        end if;
+      else
+        Qtemp <= "00000000";
+      end if;
+    end if;
+  end process;
+  Count <= Qtemp;
+  Valid <= ValidSignal;
+  Overflow <= OverflowSignal;
+  Underflow <= UnderflowSignal;
+end Behavior;
