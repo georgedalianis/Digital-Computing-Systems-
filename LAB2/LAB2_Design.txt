@@ -1,0 +1,95 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+ENTITY Mealy_Machine IS
+PORT (RST, Clock, A, B : IN STD_LOGIC;
+      Control : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+     );
+END Mealy_Machine;
+
+ARCHITECTURE Behavior OF Mealy_Machine IS
+
+TYPE state IS (S0, S1, S2, S3, S4);
+signal Mealy_state: state;
+
+BEGIN
+    U_Mealy: PROCESS 
+	 BEGIN
+	 wait until Clock'EVENT and Clock='1';
+        if (RST='1')  THEN
+            Mealy_state <= S0;
+        ELSE 
+            CASE Mealy_state IS
+                WHEN S0 =>
+					   IF A = '0' AND B = '0' THEN
+                        Mealy_state <= S0;
+                    ELSIF A = '1' AND B = '1' THEN
+                        Mealy_state <= S0;
+                    ELSIF A = '1' AND B = '0' THEN
+                        Mealy_state <= S1;
+                    ELSIF A = '0' AND B = '1' THEN
+                        Mealy_state <= S4;
+                    END IF;
+						  
+						  WHEN S1 =>
+                    IF A = '0' AND B = '0' THEN
+                        Mealy_state <= S1;
+                    ELSIF A = '1' AND B = '1' THEN
+                        Mealy_state <= S1;
+                    ELSIF A = '1' AND B = '0' THEN
+                        Mealy_state <= S2;
+                    ELSIF A = '0' AND B = '1' THEN
+                        Mealy_state <= S0;
+                    END IF;
+						  
+						    WHEN S2 =>
+                    IF A = '0' AND B = '0' THEN
+                        Mealy_state <= S2;
+                    ELSIF A = '1' AND B = '1' THEN
+                        Mealy_state <= S2;
+                    ELSIF A = '1' AND B = '0' THEN
+                        Mealy_state <= S3;
+                    ELSIF A = '0' AND B = '1' THEN
+                        Mealy_state <= S1;
+                    END IF;
+						  
+						  WHEN S3 =>
+                    IF A = '0' AND B = '0' THEN
+                        Mealy_state <= S3;
+                    ELSIF A = '1' AND B = '1' THEN
+                        Mealy_state <= S3;
+                    ELSIF A = '1' AND B = '0' THEN
+                        Mealy_state <= S4;
+                    ELSIF A = '0' AND B = '1' THEN
+                        Mealy_state <= S2;
+                    END IF;
+						  
+						   WHEN S4 =>
+                    IF A = '0' AND B = '0' THEN
+                        Mealy_state <= S4;
+                    ELSIF A = '1' AND B = '1' THEN
+                        Mealy_state <= S4;
+                    ELSIF A = '1' AND B = '0' THEN
+                        Mealy_state <= S0;
+                    ELSIF A = '0' AND B = '1' THEN
+                        Mealy_state <= S3;
+                    END IF;
+            END CASE;
+        END IF;
+    END PROCESS;
+	 Control <= "000" WHEN Mealy_state = S0 ELSE
+              "001" WHEN Mealy_state = S1 ELSE
+              "010" WHEN Mealy_state = S2 ELSE
+              "011" WHEN Mealy_state = S3 ELSE
+              "100" WHEN Mealy_state = S4;
+
+END Behavior
